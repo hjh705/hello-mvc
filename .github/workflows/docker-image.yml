@@ -30,7 +30,7 @@ jobs:
       run: mvn -B package --file pom.xml -Dmaven.test.skip=true
       
     - name: Build with Docker
-      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.APP_NAME }} .
+      run: docker build --platform linux/amd64 --t ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.APP_NAME }} .
       
     - name: Docker Hub Login
       uses: docker/login-action@v2
