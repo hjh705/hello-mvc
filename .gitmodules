@@ -1,0 +1,3 @@
+[submodule "src/main/resources/configs"]
+	path = src/main/resources/configs
+	url = https://hjh705@github.com/hjh705/hello-mvc-configs.git
