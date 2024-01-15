@@ -1,31 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="board">
-
     <select id="findAll" resultType="boardVo">
         select
             b.*,
-            (select count(*) from attachment where board_id = b.id) attach_count
+            (select count(*) from attachment where board_id = b.id) attach_count,
+            (select count(*) from board_comment where board_id = b.id) comment_count
         from
             board b
         order by
             id desc
     </select>
-
-    <select id="getTotalCount" resultType="_int">
-        select
-            count(*)
-        from
-            board
-    </select>
-
+    <!--
+      mybatis를 이용해서 조인쿼리
+      - resultType 대신 resultMap 사용
+      - 1:n관계 <collection> 사용
+      - 1:1관계 <assocation> 사용
+    -->
     <select id="findById" resultMap="boardVoMap">
         select
             b.*,
             m.name member_name,
-            a.d attach_id,
+            a.id attach_id,
             a.board_id,
             a.original_filename,
             a.renamed_filename,
@@ -33,26 +31,18 @@
         from
             board b
                 left join member m
-                    on b.member_id = m.id
+                          on b.member_id = m.id
                 left join attachment a
-                    on b.id = a.board_id
+                          on b.id = a.board_id
+
         where
             b.id = #{id}
     </select>
-    <update id="updateBoardReadCount">
-        update
-            board
-        set
-            read_count = read_count + 1
-        where
-            id = #{id}
-    </update>
-
     <!--
-        mybatis를 이용해서 조인 쿼리
-        - resultType 대신 resultMap 사용
-        - 1:n 관계 <collection> 사용
-        - 1:1 관계 <association> 사용
+      <id/> 식별자 컬럼
+      <result/> 식별자가 아닌 컬럼
+      <collection/> 1:N관계에서 N에 해당하는 속성 처리(List)
+      <association/> 1:1관계에서 상대 1에 해당하는 속성 처리(vo)
     -->
     <resultMap id="boardVoMap" type="boardVo">
         <id column="id" property="id"/>
@@ -61,58 +51,73 @@
         <result column="content" property="content"/>
         <result column="read_count" property="readCount"/>
         <result column="reg_date" property="regDate"/>
-        <association property="member" javaType="member"> <!-- Member 가 javatype, member가 property   -->
+        <association property="member" javaType="member">
             <id column="member_id" property="id"/>
             <result column="member_name" property="name"/>
         </association>
         <collection property="attachments" ofType="attachment">
-            <id column="attach_id" property="id"/> <!-- id 식별 컬럼 -->
+            <id column="attach_id" property="id"/>
             <result column="board_id" property="boardId"/>
             <result column="original_filename" property="originalFilename"/>
             <result column="renamed_filename" property="renamedFilename"/>
             <result column="attach_reg_date" property="regDate"/>
         </collection>
     </resultMap>
-
+    <update id="updateBoardReadCount">
+        update
+            board
+        set
+            read_count = read_count + 1
+        where
+            id = #{id}
+    </update>
     <insert id="insertBoard">
         insert into
-            board (id, title, member_id, content)
+        board (id, title, member_id, content)
         values(
-        seq_board_id.nextval, #{title}, #{memberId}, #{content}
+        seq_board_id.nextval,
+        #{title},
+        #{memberId},
+        #{content}
         )
         <selectKey order="AFTER" resultType="_int" keyProperty="id">
-            select seq_board_id.currval from dual
+            select
+            seq_board_id.currval
+            from
+            dual
         </selectKey>
     </insert>
-
     <insert id="insertAttachment">
         insert into
             attachment (id, board_id, original_filename, renamed_filename)
         values(
-            seq_attachment_id.nextval,
-            #{boardId},
-            #{originalFilename},
-            #{renamedFilename}
-        )
+                  seq_attachment_id.nextval,
+                  #{boardId},
+                  #{originalFilename},
+                  #{renamedFilename}
+              )
     </insert>
-
-    <delete id="deleteBoard">
-        delete from
-           board
-        where
-            id = #{id}
-    </delete>
-
     <update id="updateBoard">
         update
             board
         set
             title = #{title},
-            content = #{content}
+            content= #{content}
         where
             id = #{id}
     </update>
-
+    <delete id="deleteBoard">
+        delete from
+            board
+        where
+            id = #{id}
+    </delete>
+    <select id="getTotalCount" resultType="_int">
+        select
+            count(*)
+        from
+            board
+    </select>
     <delete id="deleteAttachment">
         delete from
             attachment
@@ -127,35 +132,32 @@
             board_comment
         where
             board_id = #{boardId}
-        start with
-            comment_level =1
+            start with
+            comment_level = 1
         connect by
             prior id = parent_comment_id
         order siblings by
             id
     </select>
-
     <insert id="insertBoardComment">
         insert into
-            board_comment
+        board_comment
         values(
-            seq_board_comment_id.nextval,
-            #{boardId},
-            #{memberId},
-            #{content},
-            #{commentLevel},
-            #{parentCommentId},
-            default
+        seq_board_comment_id.nextval,
+        #{boardId},
+        #{memberId},
+        #{content},
+        #{commentLevel},
+        #{parentCommentId},
+        default
         )
-        <!-- 추출할 값을 설정 -> 이 값으로 searchCommentById 할 예정  -->
-        <selectKey order="AFTER" resultType="_Long" keyProperty="id">
+        <selectKey order="AFTER" resultType="_long" keyProperty="id">
             select
-                seq_board_comment_id.currval
+            seq_board_comment_id.currval
             from
-                dual
+            dual
         </selectKey>
     </insert>
-
     <select id="findCommentById" resultType="boardComment">
         select
             *
@@ -164,12 +166,10 @@
         where
             id = #{id}
     </select>
-
     <delete id="deleteBoardComment">
         delete from
             board_comment
         where
             id = #{id}
     </delete>
-
 </mapper>

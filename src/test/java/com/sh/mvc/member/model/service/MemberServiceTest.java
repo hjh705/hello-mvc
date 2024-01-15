@@ -186,7 +186,7 @@ public class MemberServiceTest {
 
         member.setPassword(newPassword);
 
-        int result = memberService.changePassword(member);
+        int result = memberService.updateMemberPassword(member);
 
         assertThat(result).isGreaterThan(0);
         Member member2 = memberService.findById(id);

@@ -1,7 +1,7 @@
 package com.sh.mvc.board.controller;
 
-import com.sh.mvc.board.model.BoardException;
 import com.sh.mvc.board.model.entity.Board;
+import com.sh.mvc.board.model.exception.BoardException;
 import com.sh.mvc.board.model.service.BoardService;
 import com.sh.mvc.board.model.vo.BoardVo;
 import com.sh.mvc.common.HelloMvcUtils;

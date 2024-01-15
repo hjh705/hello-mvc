@@ -71,20 +71,7 @@ public class MemberService {
         return result;
     }
 
-    public int changePassword(Member member) {
-        int result = 0;
-        SqlSession session = getSqlSession();
-        try{
-            result = memberDao.changePassword(session, member);
-            session.commit();
-        }catch (Exception e){
-            session.rollback();
-            throw e;
-        }finally {
-            session.close();
-        }
-        return result;
-    }
+
 
     public int updateMemberRole(Member member) {
         int result = 0;
@@ -143,5 +130,20 @@ public class MemberService {
         int totalCount = memberDao.getTotalCount(session, param);
         session.close();
         return totalCount;
+    }
+
+    public int updateMemberPassword(Member member) {
+        int result = 0;
+        SqlSession session = getSqlSession();
+        try {
+            result = memberDao.updateMemberPassword(session, member);
+            session.commit();
+        } catch (Exception e) {
+            session.rollback();
+            throw e;
+        } finally {
+            session.close();
+        }
+        return result;
     }
 }

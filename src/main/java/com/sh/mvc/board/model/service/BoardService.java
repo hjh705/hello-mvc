@@ -167,4 +167,19 @@ public class BoardService {
         }
         return result;
     }
+
+    public int deleteBoardComment(long id) {
+        int result = 0;
+        SqlSession session = getSqlSession();
+        try {
+            result = boardDao.deleteBoardComment(session, id);
+            session.commit();
+        } catch (Exception e) {
+            session.rollback();
+            throw e;
+        } finally {
+            session.close();
+        }
+        return result;
+    }
 }

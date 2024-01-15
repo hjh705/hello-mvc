@@ -72,13 +72,13 @@
             id = #{id}
     </update>
 
-    <update id="changePassword">
+    <update id="updateMemberPassword">
         update
-            member
+        member
         set
-            password = #{password}
+        password = #{password}
         where
-            id = #{id}
+        id = #{id}
     </update>
 
     <update id="updateMemberRole">
@@ -148,6 +148,25 @@
                     ${searchType} like '%' || #{searchKeyword} || '%'
             </if>
         </where>
+    </select>
+
+    <select id="getTotalCount2" resultType="_int">
+        select
+        count(*)
+        from
+        member
+        where
+        ${searchType} like '%' || #{searchKeyword} || '%'
+    </select>
+
+    <!-- 식별자(컬럼, 테이블명) 작성시 ${} 문법을 사용할 것.-->
+    <select id="searchMember" resultType="member">
+        select
+        *
+        from
+        member
+        where
+        ${searchType} like '%' || #{searchKeyword} || '%'
     </select>
 
 </mapper>

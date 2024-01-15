@@ -36,10 +36,6 @@ public class MemberDao {
         return session.update("member.updateMember", member);
     }
 
-    public int changePassword(SqlSession session, Member member) {
-        return session.update("member.changePassword", member);
-    }
-
     public int updateMemberRole(SqlSession session, Member member) {
         return session.update("member.updateMemberRole", member);
     }
@@ -87,5 +83,9 @@ public class MemberDao {
     public int getTotalCount(SqlSession session, Map<String, Object> param) {
         // getTotalCount2를 안쓰고, getTotalCount 를 param값을 받을 수 있도록 수정함
         return session.selectOne("member.getTotalCount", param);
+    }
+
+    public int updateMemberPassword(SqlSession session, Member member) {
+        return session.update("member.updateMemberPassword", member);
     }
 }
